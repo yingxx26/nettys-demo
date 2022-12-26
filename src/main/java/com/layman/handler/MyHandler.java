@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.Objects;
+
 
 /**
  * @ClassName MyHandler
@@ -63,10 +66,36 @@ public class MyHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         } else {
             String messageJson = JsonUtils.objectToJson(message);
             CpwMessage cpwMessage = JsonUtils.jsonToPojo(messageJson, CpwMessage.class);
+
+            //原来
+            /*RedisUtil redisUtil = new RedisUtil();
+            redisUtil.redisMessageSend(cpwMessage);*/
+
+            //改造
+            yxx(cpwMessage);
+
+        }
+    }
+
+    /**
+     * 先判断自己服务器上，没有，就发布到别的机器上
+     *
+     * @param cpwMessage
+     */
+    public void yxx(CpwMessage cpwMessage) {
+        Map<String, ChannelHandlerContext> userChannelMap = CacheChannel.userChannelMap;
+        String toId = cpwMessage.getToId();
+        ChannelHandlerContext channelHandlerContext = (ChannelHandlerContext) userChannelMap.get(toId);
+        if (!Objects.isNull(channelHandlerContext)) {
+            // 如果该用户的客户端是与本服务器建立的channel,直接推送消息
+            channelHandlerContext.channel().writeAndFlush(new TextWebSocketFrame(JsonUtils.objectToJson(cpwMessage)));
+        } else {
+            // 发布，给其他服务器消费
             RedisUtil redisUtil = new RedisUtil();
             redisUtil.redisMessageSend(cpwMessage);
         }
     }
+
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
