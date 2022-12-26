@@ -9,9 +9,9 @@
 <div class="left">
     <p>做个测试喽</p>
     <P>Socket IP 地址:</P>
-    <input id="socketIp">
+    <input id="socketIp" value="127.0.0.1">
     <p>Socket PORT:</p>
-    <input id="socketPort">
+    <input id="socketPort" value="20009">
     <p>用户类型:</p>
     <select id="userType">
         <option value="3">user</option>
@@ -20,7 +20,7 @@
     </select>
     <p>用户ID:</p>
     <input id="userId">
-    <button id="initConnect">初始化连接</button>
+    <button id="initConnect">初始化连接（用户）</button>
     <p>发送人类型</p>
     <select id="fromRole">
         <option value="3">user</option>
